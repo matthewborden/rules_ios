@@ -60,7 +60,6 @@ build:remote_cache --experimental_remote_merkle_tree_cache
 build:remote_cache --modify_execution_info=^(BitcodeSymbolsCopy|BundleApp|BundleTreeApp|DsymDwarf|DsymLipo|GenerateAppleSymbolsFile|ObjcBinarySymbolStrip|CppLink|ObjcLink|ProcessAndSign|SignBinary|SwiftArchive|SwiftStdlibCopy)$=+no-remote,^(BundleResources|ImportedDynamicFrameworkProcessor)$=+no-remote-exec
 build:remote_cache --nolegacy_important_outputs
 build:remote_cache --noslim_profile
-build:remote_cache --remote_cache=grpcs://remote.buildbuddy.io
 build:remote_cache --remote_timeout=3600
 
 # By default don't upload local results to remote cache, only CI does this.
