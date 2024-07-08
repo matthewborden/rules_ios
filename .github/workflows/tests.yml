@@ -13,7 +13,7 @@ concurrency:
 jobs:
   integration_tests:
     name: Build and test (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }} / Virtual Frameworks ${{ matrix.virtual_frameworks }})
-    runs-on: namespace-profile-macos
+    runs-on: namespace-profile-macos-default
     strategy:
       fail-fast: false
       matrix:
@@ -69,7 +69,7 @@ jobs:
 
   build_arm64_simulator:
     name: arm64 Simulator (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-    runs-on: namespace-profile-macos
+    runs-on: namespace-profile-macos-default
     strategy:
       fail-fast: false
       matrix:
@@ -118,7 +118,7 @@ jobs:
 
   buildifier-and-docs:
     name: Buildifier and Documentation (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-    runs-on: namespace-profile-macos
+    runs-on: namespace-profile-macos-default
     strategy:
       fail-fast: false
       matrix:
@@ -158,7 +158,7 @@ jobs:
 
   # xcodeproj_tests:
   #   name: Legacy xcodeproj tests (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-  #   runs-on: namespace-profile-macos
+  #   runs-on: namespace-profile-macos-default
   #   strategy:
   #     fail-fast: false
   #     matrix:
@@ -181,7 +181,7 @@ jobs:
 
   # lldb_ios_tests_xcode:
   #   name: LLDB tests (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-  #   runs-on: namespace-profile-macos
+  #   runs-on: namespace-profile-macos-default
   #   strategy:
   #     fail-fast: false
   #     matrix:
@@ -211,7 +211,7 @@ jobs:
     # i386 was removed on rules_apple 3.x.x - this test case needs reworking
     # to exemplify fat binaries on the latest version
     name: iOS App Multiple Architectures (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-    runs-on: namespace-profile-macos
+    runs-on: namespace-profile-macos-default
     strategy:
       fail-fast: false
       matrix:
