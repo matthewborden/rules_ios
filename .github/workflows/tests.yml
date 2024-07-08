@@ -13,7 +13,7 @@ concurrency:
 jobs:
   integration_tests:
     name: Build and test (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }} / Virtual Frameworks ${{ matrix.virtual_frameworks }})
-    runs-on: namespace-profile-macos-default
+    runs-on: namespace-profile-macos-small
     strategy:
       fail-fast: false
       matrix:
@@ -43,7 +43,8 @@ jobs:
       - name: Build and Test
         run: |
           # non-iOS tests
-          bazelisk test \
+          bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
+            test \
             -- \
             //... \
             -//tests/ios/...
@@ -55,8 +56,8 @@ jobs:
           SIMULATOR_UDID=$(python3 tools/tests/prepare_sim.py)
 
           # iOS tests
-          bazelisk test \
-            --bazelrc=/tmp/bazel-cache.bazelrc \
+          bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
+            test \
             --config=ios \
             --test_arg=--destination=platform=ios_simulator,id=$SIMULATOR_UDID \
             -- \
@@ -69,7 +70,7 @@ jobs:
 
   build_arm64_simulator:
     name: arm64 Simulator (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-    runs-on: namespace-profile-macos-default
+    runs-on: namespace-profile-macos-small
     strategy:
       fail-fast: false
       matrix:
@@ -91,8 +92,8 @@ jobs:
           nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
       - name: Build and Test
         run: |
-          bazelisk build \
-            --bazelrc=/tmp/bazel-cache.bazelrc \
+          bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
+            build \
             --config=vfs \
             --features apple.arm64_simulator_use_device_deps \
             --ios_multi_cpus=sim_arm64  \
@@ -102,7 +103,8 @@ jobs:
 
           # Misc issues:
           #   - Fails on a non fat framework for //tests/ios/unit-test/test-imports-app/
-          bazelisk build \
+          bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
+            build \
             --config=ios \
             --config=vfs \
             --features apple.arm64_simulator_use_device_deps \
@@ -118,7 +120,7 @@ jobs:
 
   buildifier-and-docs:
     name: Buildifier and Documentation (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-    runs-on: namespace-profile-macos-default
+    runs-on: namespace-profile-macos-small
     strategy:
       fail-fast: false
       matrix:
@@ -158,7 +160,7 @@ jobs:
 
   # xcodeproj_tests:
   #   name: Legacy xcodeproj tests (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-  #   runs-on: namespace-profile-macos-default
+  #   runs-on: namespace-profile-macos-small
   #   strategy:
   #     fail-fast: false
   #     matrix:
@@ -181,7 +183,7 @@ jobs:
 
   # lldb_ios_tests_xcode:
   #   name: LLDB tests (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-  #   runs-on: namespace-profile-macos-default
+  #   runs-on: namespace-profile-macos-small
   #   strategy:
   #     fail-fast: false
   #     matrix:
@@ -211,7 +213,7 @@ jobs:
     # i386 was removed on rules_apple 3.x.x - this test case needs reworking
     # to exemplify fat binaries on the latest version
     name: iOS App Multiple Architectures (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-    runs-on: namespace-profile-macos-default
+    runs-on: namespace-profile-macos-small
     strategy:
       fail-fast: false
       matrix:
