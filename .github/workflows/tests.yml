@@ -20,6 +20,7 @@ jobs:
         bazel_version: [6.5.0, 7.1.0]
         xcode_version: [15.2]
         virtual_frameworks: [true, false]
+        bazel_cache: [true, false]
     env:
       XCODE_VERSION: ${{ matrix.xcode_version }}
       USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
@@ -32,11 +33,16 @@ jobs:
         run: |
           echo "build --config=vfs" >> user.bazelrc
 
-      - name: Build nsc
+      - run: |
+          touch /tmp/bazel-cache.bazelrc
+
+      - if: matrix.bazel_cache
+        name: Build nsc
         run: |
           curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
 
-      - name: Set up Bazel cache
+      - if: matrix.bazel_cache
+        name: Set up Bazel cache
         run: |
           nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
 
