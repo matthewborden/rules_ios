@@ -50,7 +50,7 @@ jobs:
         run: |
           bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
             test \
-            --profile=cache-${{ matrix.bazel_cache }}-profile.gz
+            --profile=cache-${{ matrix.bazel_cache }}-profile.gz \
             -- \
             //... \
             -//tests/ios/...
