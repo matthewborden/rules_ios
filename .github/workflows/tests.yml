@@ -50,7 +50,7 @@ jobs:
         run: |
           bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
             test \
-            --profile=cache-${{ matrix.bazel_cache }}-profile.gz \
+            --profile=non-ios-tests-cache-${{ matrix.bazel_cache }}-profile.gz \
             -- \
             //... \
             -//tests/ios/...
@@ -65,14 +65,19 @@ jobs:
 
           bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
             test \
+            --profile=ios-tests-cache-${{ matrix.bazel_cache }}-profile.gz \
             --config=ios \
             --test_arg=--destination=platform=ios_simulator,id=$SIMULATOR_UDID \
             -- \
             //tests/ios/...
       - uses: actions/upload-artifact@v4
         with:
-          name: cache-${{ matrix.bazel_cache }}-profile.gz
-          path: cache-${{ matrix.bazel_cache }}-profile.gz
+          name: non-ios-tests-cache-${{ matrix.bazel_cache }}-profile.gz
+          path: non-ios-tests-cache-${{ matrix.bazel_cache }}-profile.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios-tests-cache-${{ matrix.bazel_cache }}-profile.gz
+          path: ios-tests-cache-${{ matrix.bazel_cache }}-profile.gz
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
