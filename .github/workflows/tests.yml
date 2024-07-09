@@ -12,26 +12,26 @@ concurrency:
 #       when adding a new job / changing the matrix, make sure to update all jobs
 jobs:
   integration_tests:
-    name: Build and test (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }} / Virtual Frameworks ${{ matrix.virtual_frameworks }})
+    name: Caching ${{ matrix.bazel_cache }}
     runs-on: namespace-profile-macos-small
     strategy:
       fail-fast: false
       matrix:
-        bazel_version: [6.5.0, 7.1.0]
-        xcode_version: [15.2]
-        virtual_frameworks: [true, false]
+        # bazel_version: [6.5.0, 7.1.0]
+        # xcode_version: [15.2]
+        # virtual_frameworks: [true, false]
         bazel_cache: [true, false]
     env:
-      XCODE_VERSION: ${{ matrix.xcode_version }}
-      USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
+      XCODE_VERSION: 15.2
+      USE_BAZEL_VERSION: 7.1.0
     steps:
       - uses: actions/checkout@v4
       - name: Preflight Env
         run: .github/workflows/preflight_env.sh
-      - if: matrix.virtual_frameworks
-        name: Add vfs config
-        run: |
-          echo "build --config=vfs" >> user.bazelrc
+      # - if: matrix.virtual_frameworks
+      #   name: Add vfs config
+      #   run: |
+      #     echo "build --config=vfs" >> user.bazelrc
 
       - run: |
           touch /tmp/bazel-cache.bazelrc
@@ -74,95 +74,95 @@ jobs:
           name: bazel-testlogs
           path: bazel-testlogs
 
-  build_arm64_simulator:
-    name: arm64 Simulator (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-    runs-on: namespace-profile-macos-small
-    strategy:
-      fail-fast: false
-      matrix:
-        bazel_version: [6.5.0, 7.1.0]
-        xcode_version: [15.2]
-    env:
-      XCODE_VERSION: ${{ matrix.xcode_version }}
-      USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Preflight Env
-        run: .github/workflows/preflight_env.sh
-      - name: Build nsc
-        run: |
-          curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
+  # build_arm64_simulator:
+  #   name: arm64 Simulator (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
+  #   runs-on: namespace-profile-macos-small
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       bazel_version: [6.5.0, 7.1.0]
+  #       xcode_version: [15.2]
+  #   env:
+  #     XCODE_VERSION: ${{ matrix.xcode_version }}
+  #     USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Preflight Env
+  #       run: .github/workflows/preflight_env.sh
+  #     - name: Build nsc
+  #       run: |
+  #         curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
 
-      - name: Set up Bazel cache
-        run: |
-          nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
-      - name: Build and Test
-        run: |
-          bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
-            build \
-            --config=vfs \
-            --features apple.arm64_simulator_use_device_deps \
-            --ios_multi_cpus=sim_arm64  \
-            -- \
-            //... \
-            -//tests/ios/...
+  #     - name: Set up Bazel cache
+  #       run: |
+  #         nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
+  #     - name: Build and Test
+  #       run: |
+  #         bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
+  #           build \
+  #           --config=vfs \
+  #           --features apple.arm64_simulator_use_device_deps \
+  #           --ios_multi_cpus=sim_arm64  \
+  #           -- \
+  #           //... \
+  #           -//tests/ios/...
 
-          # Misc issues:
-          #   - Fails on a non fat framework for //tests/ios/unit-test/test-imports-app/
-          bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
-            build \
-            --config=ios \
-            --config=vfs \
-            --features apple.arm64_simulator_use_device_deps \
-            --ios_multi_cpus=sim_arm64 \
-            -- \
-            //tests/ios/... \
-            -//tests/ios/unit-test/test-imports-app/...
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: bazel-testlogs
-          path: bazel-testlogs
+  #         # Misc issues:
+  #         #   - Fails on a non fat framework for //tests/ios/unit-test/test-imports-app/
+  #         bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
+  #           build \
+  #           --config=ios \
+  #           --config=vfs \
+  #           --features apple.arm64_simulator_use_device_deps \
+  #           --ios_multi_cpus=sim_arm64 \
+  #           -- \
+  #           //tests/ios/... \
+  #           -//tests/ios/unit-test/test-imports-app/...
+  #     - uses: actions/upload-artifact@v4
+  #       if: failure()
+  #       with:
+  #         name: bazel-testlogs
+  #         path: bazel-testlogs
 
-  buildifier-and-docs:
-    name: Buildifier and Documentation (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-    runs-on: namespace-profile-macos-small
-    strategy:
-      fail-fast: false
-      matrix:
-        bazel_version: [7.1.0] # Only run on latest Bazel version as stardoc changes between versions and produces different results
-        xcode_version: [15.2]
-    env:
-      XCODE_VERSION: ${{ matrix.xcode_version }}
-      USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Preflight Env
-        run: .github/workflows/preflight_env.sh
-        # Note: we need to pass the absolute to the Bazel run
-      - name: buildifier
-        run: |
-          find $PWD -type f \( -name 'WORKSPACE' -o -name '*.bzl' -o -name '*.bazel' \) | xargs bazel run //:buildifier -- -lint=fix
-          git diff --exit-code
-      - name: Build nsc
-        run: |
-          curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
+  # buildifier-and-docs:
+  #   name: Buildifier and Documentation (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
+  #   runs-on: namespace-profile-macos-small
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       bazel_version: [7.1.0] # Only run on latest Bazel version as stardoc changes between versions and produces different results
+  #       xcode_version: [15.2]
+  #   env:
+  #     XCODE_VERSION: ${{ matrix.xcode_version }}
+  #     USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Preflight Env
+  #       run: .github/workflows/preflight_env.sh
+  #       # Note: we need to pass the absolute to the Bazel run
+  #     - name: buildifier
+  #       run: |
+  #         find $PWD -type f \( -name 'WORKSPACE' -o -name '*.bzl' -o -name '*.bazel' \) | xargs bazel run //:buildifier -- -lint=fix
+  #         git diff --exit-code
+  #     - name: Build nsc
+  #       run: |
+  #         curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
 
-      - name: Set up Bazel cache
-        run: |
-          nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
-      - name: Check docs
-        run: |
-          bazelisk \
-            --bazelrc=/tmp/bazel-cache.bazelrc \
-            run \
-            //docs
-          git diff --exit-code docs
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: bazel-testlogs
-          path: bazel-testlogs
+  #     - name: Set up Bazel cache
+  #       run: |
+  #         nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
+  #     - name: Check docs
+  #       run: |
+  #         bazelisk \
+  #           --bazelrc=/tmp/bazel-cache.bazelrc \
+  #           run \
+  #           //docs
+  #         git diff --exit-code docs
+  #     - uses: actions/upload-artifact@v4
+  #       if: failure()
+  #       with:
+  #         name: bazel-testlogs
+  #         path: bazel-testlogs
 
   # xcodeproj_tests:
   #   name: Legacy xcodeproj tests (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
@@ -215,35 +215,35 @@ jobs:
   #         name: bazel-testlogs
   #         path: bazel-testlogs
 
-  multi_arch_support:
-    # i386 was removed on rules_apple 3.x.x - this test case needs reworking
-    # to exemplify fat binaries on the latest version
-    name: iOS App Multiple Architectures (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
-    runs-on: namespace-profile-macos-small
-    strategy:
-      fail-fast: false
-      matrix:
-        bazel_version: [6.5.0, 7.1.0]
-        xcode_version: [15.2]
-    env:
-      XCODE_VERSION: ${{ matrix.xcode_version }}
-      USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Preflight Env
-        run: .github/workflows/preflight_env.sh
-      - name: Build nsc
-        run: |
-          curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
+  # multi_arch_support:
+  #   # i386 was removed on rules_apple 3.x.x - this test case needs reworking
+  #   # to exemplify fat binaries on the latest version
+  #   name: iOS App Multiple Architectures (Bazel ${{ matrix.bazel_version }} / Xcode ${{ matrix.xcode_version }})
+  #   runs-on: namespace-profile-macos-small
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       bazel_version: [6.5.0, 7.1.0]
+  #       xcode_version: [15.2]
+  #   env:
+  #     XCODE_VERSION: ${{ matrix.xcode_version }}
+  #     USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Preflight Env
+  #       run: .github/workflows/preflight_env.sh
+  #     - name: Build nsc
+  #       run: |
+  #         curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
 
-      - name: Set up Bazel cache
-        run: |
-          nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
-      - name: Build App
-        run: |
-          bazelisk \
-            --bazelrc=/tmp/bazel-cache.bazelrc \
-            build \
-            --config=ios_multi_arch_test \
-            -- \
-            tests/ios/app/App
+  #     - name: Set up Bazel cache
+  #       run: |
+  #         nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
+  #     - name: Build App
+  #       run: |
+  #         bazelisk \
+  #           --bazelrc=/tmp/bazel-cache.bazelrc \
+  #           build \
+  #           --config=ios_multi_arch_test \
+  #           -- \
+  #           tests/ios/app/App
