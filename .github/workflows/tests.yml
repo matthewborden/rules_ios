@@ -46,9 +46,8 @@ jobs:
         run: |
           nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
 
-      - name: Build and Test
+      - name: non-iOS tests
         run: |
-          # non-iOS tests
           bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
             test \
             -- \
@@ -58,10 +57,11 @@ jobs:
           # Clean up after simctl (https://github.com/bazelbuild/rules_apple/issues/185)
           pgrep Simulator | xargs kill || true
 
+      - name: iOS tests
+        run: |
           # Create single ephemeral iOS sim
           SIMULATOR_UDID=$(python3 tools/tests/prepare_sim.py)
 
-          # iOS tests
           bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
             test \
             --config=ios \
