@@ -2,6 +2,8 @@ steps:
   - label: "iOS Tests"
     agents:
       queue: "mac-xcode-2"
+    artifact_paths:
+      - "ios-tests-cache-profile.gz"
     command: |
       # curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
       # nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
@@ -23,11 +25,11 @@ steps:
       # Clean up after simctl (https://github.com/bazelbuild/rules_apple/issues/185)
       pgrep Simulator | xargs kill || true
 
-      sleep 1000
-
   - label: "Non-iOS Tests"
     agents:
       queue: "mac-xcode-2"
+    artifact_paths:
+      - "non-ios-tests-cache-profile.gz"
     command: |
       # curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
       # nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
@@ -47,5 +49,3 @@ steps:
 
       # Clean up after simctl (https://github.com/bazelbuild/rules_apple/issues/185)
       pgrep Simulator | xargs kill || true
-
-      sleep 1000
