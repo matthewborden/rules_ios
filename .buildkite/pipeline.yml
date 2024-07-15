@@ -1,5 +1,5 @@
 steps:
-  - label: "Build"
+  - label: "iOS Tests"
     agents:
       queue: "mac-xcode-2"
     command: |
@@ -19,3 +19,29 @@ steps:
         --test_arg=--destination=platform=ios_simulator,id=$$SIMULATOR_UDID \
         -- \
         //tests/ios/...
+
+      # Clean up after simctl (https://github.com/bazelbuild/rules_apple/issues/185)
+      pgrep Simulator | xargs kill || true
+
+  - label: "Non-iOS Tests"
+    agents:
+      queue: "mac-xcode-2"
+    command: |
+      # curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
+      # nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
+
+      pip3 install setuptools==69.5.1 --break-system-packages
+
+      # Create single ephemeral iOS sim
+      SIMULATOR_UDID=$(python3 tools/tests/prepare_sim.py)
+
+      # --bazelrc=/tmp/bazel-cache.bazelrc \
+      bazelisk \
+        test \
+        --profile=non-ios-tests-cache-${{ matrix.bazel_cache }}-profile.gz \
+        -- \
+        //... \
+        -//tests/ios/...
+
+      # Clean up after simctl (https://github.com/bazelbuild/rules_apple/issues/185)
+      pgrep Simulator | xargs kill || true
