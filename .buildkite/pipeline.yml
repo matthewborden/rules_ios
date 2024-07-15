@@ -40,7 +40,7 @@ steps:
       # --bazelrc=/tmp/bazel-cache.bazelrc \
       bazelisk \
         test \
-        --profile=non-ios-tests-cache-${{ matrix.bazel_cache }}-profile.gz \
+        --profile=non-ios-tests-cache-profile.gz \
         -- \
         //... \
         -//tests/ios/...
