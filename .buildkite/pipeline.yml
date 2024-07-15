@@ -6,6 +6,8 @@ steps:
       # curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
       # nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
 
+      pip3 install setuptools==69.5.1 --break-system-packages
+
       # Create single ephemeral iOS sim
       SIMULATOR_UDID=$(python3 tools/tests/prepare_sim.py)
 
