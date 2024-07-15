@@ -4,6 +4,7 @@ steps:
       queue: "mac-xcode-2"
     artifact_paths:
       - "ios-tests-cache-profile.gz"
+      - "/private/var/tmp/_bazel_admin/*/execroot/_main/bazel-out/darwin_arm64-dbg/testlogs/tests"
     command: |
       # curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
       # nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
