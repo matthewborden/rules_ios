@@ -49,7 +49,7 @@ steps:
     agents:
       queue: "mac-xcode-2"
     artifact_paths:
-      - "ios-tests-cache-profile.gz"
+      - "ios-tests-cache-caching-profile.gz"
       - "/private/var/tmp/_bazel_admin/*/execroot/_main/bazel-out/darwin_arm64-dbg/testlogs/tests"
     command: |
       curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
@@ -62,7 +62,7 @@ steps:
 
       bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
         test \
-        --profile=ios-tests-cache-profile.gz \
+        --profile=ios-tests-cache-caching-profile.gz \
         --config=ios \
         --test_arg=--destination=platform=ios_simulator,id=$$SIMULATOR_UDID \
         -- \
@@ -75,7 +75,7 @@ steps:
     agents:
       queue: "mac-xcode-2"
     artifact_paths:
-      - "non-ios-tests-cache-profile.gz"
+      - "non-ios-tests-cache-caching-profile.gz"
     command: |
       curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
       nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
@@ -87,7 +87,7 @@ steps:
 
       bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
         test \
-        --profile=non-ios-tests-cache-profile.gz \
+        --profile=non-ios-tests-cache-caching-profile.gz \
         -- \
         //... \
         -//tests/ios/...
