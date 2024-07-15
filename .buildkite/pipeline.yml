@@ -14,3 +14,5 @@ steps:
         --test_arg=--destination=platform=ios_simulator,id=$SIMULATOR_UDID \
         -- \
         //tests/ios/...
+    agents:
+      queue: "mac-xcode-2"
