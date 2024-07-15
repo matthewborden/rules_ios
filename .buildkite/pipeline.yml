@@ -23,6 +23,8 @@ steps:
       # Clean up after simctl (https://github.com/bazelbuild/rules_apple/issues/185)
       pgrep Simulator | xargs kill || true
 
+      sleep 1000
+
   - label: "Non-iOS Tests"
     agents:
       queue: "mac-xcode-2"
@@ -45,3 +47,5 @@ steps:
 
       # Clean up after simctl (https://github.com/bazelbuild/rules_apple/issues/185)
       pgrep Simulator | xargs kill || true
+
+      sleep 1000
