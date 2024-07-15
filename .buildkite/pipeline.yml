@@ -11,10 +11,11 @@ steps:
       # Create single ephemeral iOS sim
       SIMULATOR_UDID=$(python3 tools/tests/prepare_sim.py)
 
-      bazelisk --bazelrc=/tmp/bazel-cache.bazelrc \
+      # --bazelrc=/tmp/bazel-cache.bazelrc \
+      bazelisk \
         test \
         --profile=ios-tests-cache-profile.gz \
         --config=ios \
-        --test_arg=--destination=platform=ios_simulator,id=$SIMULATOR_UDID \
+        --test_arg=--destination=platform=ios_simulator,id=$$SIMULATOR_UDID \
         -- \
         //tests/ios/...
