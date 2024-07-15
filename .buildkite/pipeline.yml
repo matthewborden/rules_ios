@@ -2,7 +2,7 @@ steps:
   - label: "Build"
     agents:
       queue: "mac-xcode-2"
-    command: -|
+    command: |
       # curl -fsSL https://get.namespace.so/cloud/install.sh | sh -s -- --version 0.0.386
       # nsc bazel cache setup --bazelrc=/tmp/bazel-cache.bazelrc
 
